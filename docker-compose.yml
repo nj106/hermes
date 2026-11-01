@@ -1,0 +1,38 @@
+# Hermes Agent (NousResearch) — trial deployment on OCI via Portainer.
+# Conventions: bridge network, explicit named volume, Watchtower label,
+# dashboard/API bound to host loopback only; public access via Caddy (host
+# network) -> 127.0.0.1:9119 with Hermes' own basic-auth gate behind HTTPS.
+services:
+  hermes:
+    image: nousresearch/hermes-agent:stable
+    container_name: hermes
+    network_mode: bridge
+    command: gateway run
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    ports:
+      - "127.0.0.1:8642:8642"
+      - "127.0.0.1:9119:9119"
+    volumes:
+      - hermes_data:/opt/data
+    environment:
+      - HERMES_DASHBOARD=1
+      - HERMES_DASHBOARD_BASIC_AUTH_USERNAME=${HERMES_DASHBOARD_USER:-admin}
+      - HERMES_DASHBOARD_BASIC_AUTH_PASSWORD=${HERMES_DASHBOARD_PASSWORD}
+      - HERMES_DASHBOARD_BASIC_AUTH_SECRET=${HERMES_DASHBOARD_SECRET}
+    shm_size: "1g"
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: "2.0"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  hermes_data:
+    name: hermes_data
