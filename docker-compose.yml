@@ -4,7 +4,7 @@
 # network) -> 127.0.0.1:9119 with Hermes' own basic-auth gate behind HTTPS.
 services:
   hermes:
-    image: nousresearch/hermes-agent:latest
+    image: nousresearch/hermes-agent:stable
     container_name: hermes
     network_mode: bridge
     command: gateway run
